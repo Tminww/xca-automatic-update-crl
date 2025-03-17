@@ -1,0 +1,62 @@
+[
+  {
+    "ip": "string",
+    "user": "string",
+    "status": "active",
+    "last_confirmed": "2025-03-17T15:45:45.045921Z"
+  },
+  {
+    "ip": "10.0.0.1",
+    "user": "string",
+    "status": "active",
+    "last_confirmed": "2025-03-17T15:50:36.426852Z"
+  },
+  {
+    "ip": "127.0.0.1",
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T16:06:41.894400Z"
+  },
+  {
+    "ip": "127.0.0.2",
+    "port": 8001,
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T17:18:49.090561Z"
+  },
+  {
+    "ip": "127.0.0.4",
+    "port": 8001,
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T17:21:15.328369Z"
+  },
+  {
+    "ip": "127.0.0.5",
+    "port": 8001,
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T17:21:37.741125Z"
+  },
+  {
+    "ip": "127.0.0.5",
+    "port": 8001,
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T19:09:30.586119Z"
+  },
+  {
+    "ip": "127.0.0.5",
+    "port": 8001,
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T19:16:41.192771Z"
+  },
+  {
+    "ip": "127.0.0.5",
+    "port": 8001,
+    "user": "user1",
+    "status": "active",
+    "last_confirmed": "2025-03-17T19:17:15.863028Z"
+  }
+]
