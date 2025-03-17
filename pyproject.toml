@@ -1,0 +1,11 @@
+[project]
+name = "xca-automatic-update-crl"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.11",
+    "pydantic>=2.10.6",
+    "pydantic-settings>=2.8.1",
+]
