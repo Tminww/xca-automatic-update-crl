@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ЦУЦ - Интерфейс</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f4f7fa;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-size: 18px;
+      }
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 800px;
+        text-align: center;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 32px;
+      }
+      .status-label {
+        font-weight: bold;
+        color: #34495e;
+        font-size: 20px;
+      }
+      .connected {
+        color: #27ae60;
+        font-weight: bold;
+        font-size: 20px;
+      }
+      .disconnected {
+        color: #c0392b;
+        font-weight: bold;
+        font-size: 20px;
+      }
+      .info {
+        background-color: #ecf0f1;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        color: #7f8c8d;
+        font-size: 18px;
+      }
+      h2 {
+        color: #2980b9;
+        margin-top: 30px;
+        font-size: 28px;
+      }
+      .cert-list,
+      .host-list {
+        list-style: none;
+        padding: 0;
+        text-align: left;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .cert-list li,
+      .host-list li {
+        background-color: #ffffff;
+        padding: 15px;
+        margin: 5px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        font-size: 18px;
+      }
+      .cert-list li:hover,
+      .host-list li:hover {
+        background-color: #f9f9f9;
+        border-color: #2980b9;
+      }
+      .cert-detail,
+      .host-detail {
+        color: #7f8c8d;
+        font-size: 16px;
+      }
+      /* Стили для вкладок */
+      .tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .tab-button {
+        background-color: #ecf0f1;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 5px;
+        border-radius: 5px;
+        font-size: 18px;
+        color: #34495e;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      .tab-button:hover {
+        background-color: #dfe6e9;
+      }
+      .tab-button.active {
+        background-color: #2980b9;
+        color: #fff;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>ЦУЦ - Интерфейс</h1>
+      <div class="tabs">
+        <button class="tab-button active" onclick="openTab('hosts-tab')">
+          Список ПУЦ
+        </button>
+        <button class="tab-button" onclick="openTab('certs-tab')">
+          Отозванные сертификаты
+        </button>
+      </div>
+
+      <div id="hosts-tab" class="tab-content active">
+        <h2>Список зарегистрированных ПУЦ</h2>
+        <ul id="hosts" class="host-list"></ul>
+      </div>
+
+      <div id="certs-tab" class="tab-content">
+        <h2>Текущие отозванные сертификаты</h2>
+        <ul id="revoked-certs" class="cert-list"></ul>
+      </div>
+    </div>
+
+    <script>
+      function formatDate(isoString) {
+        if (!isoString) return "Не указана";
+        const date = new Date(isoString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      }
+
+      function openTab(tabId) {
+        // Скрываем все вкладки
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        // Деактивируем все кнопки
+        document.querySelectorAll(".tab-button").forEach((button) => {
+          button.classList.remove("active");
+        });
+        // Показываем выбранную вкладку
+        document.getElementById(tabId).classList.add("active");
+        // Активируем соответствующую кнопку
+        document
+          .querySelector(`button[onclick="openTab('${tabId}')"]`)
+          .classList.add("active");
+      }
+
+      async function updateInterface() {
+        try {
+          // Обновляем список подключенных клиентов
+          const hostsResponse = await fetch("/hosts");
+          const hosts = await hostsResponse.json();
+          const hostList = document.getElementById("hosts");
+          hostList.innerHTML = "";
+          if (hosts.length > 0) {
+            hosts.forEach((host) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                <strong>Пользователь:</strong> ${host.user}<br>
+                <span class="host-detail">
+                  IP: ${host.ip}:${host.port}<br>
+                  <span class="status-label">Статус:</span>
+                  <span class="${host.status.toLowerCase()}">${
+                host.status === "Connected"
+                  ? "Соединение установлено"
+                  : "Соединение разорвано"
+              }</span><br>
+                  Последнее обновление: ${formatDate(host.last_confirmed)}
+                </span>
+              `;
+              hostList.appendChild(li);
+            });
+          } else {
+            const li = document.createElement("li");
+            li.textContent = "Нет зарегистрированных ПУЦ";
+            hostList.appendChild(li);
+          }
+
+          // Обновляем список отозванных сертификатов
+          const response = await fetch("/status");
+          const data = await response.json();
+          const revokedList = document.getElementById("revoked-certs");
+          revokedList.innerHTML = "";
+
+          const revokedCerts = data.revoked_certs || [];
+          if (revokedCerts.length > 0) {
+            revokedCerts.forEach((cert) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                <strong>Серийный номер:</strong> ${String(
+                  cert.serial_number
+                ).toUpperCase()}<br>
+                <span class="cert-detail">
+                  Причина отзыва: ${cert.revocation_reason || "Не указана"}<br>
+                  Дата отзыва: ${formatDate(cert.revocation_date)}
+                </span>
+              `;
+              revokedList.appendChild(li);
+            });
+          } else {
+            const li = document.createElement("li");
+            li.textContent = "Нет отозванных сертификатов";
+            revokedList.appendChild(li);
+          }
+        } catch (error) {
+          console.error("Ошибка при обновлении интерфейса:", error);
+        }
+      }
+
+      setInterval(updateInterface, 30_000); // Обновление каждые 30 секунд
+      updateInterface(); // Первоначальный вызов
+    </script>
+  </body>
+</html>

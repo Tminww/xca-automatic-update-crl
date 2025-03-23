@@ -22,6 +22,7 @@ class Config(BaseSettings):
         None  # Прокси для ПУЦ, если требуется (например, "http://proxy:port")
     )
 
+    update_rate: int = 30
     # Конфигурация для загрузки из файла .env
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ПУЦ - Интерфейс</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #f4f7fa;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-size: 18px; /* Увеличен базовый размер шрифта */
+      }
+      .container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 80%;
+        max-width: 800px;
+        text-align: center;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 32px; /* Увеличен размер шрифта заголовка */
+      }
+      .status-label {
+        font-weight: bold;
+        color: #34495e;
+        font-size: 20px; /* Увеличен размер шрифта */
+      }
+      .connected {
+        color: #27ae60;
+        font-weight: bold;
+        font-size: 20px; /* Увеличен размер шрифта */
+      }
+      .disconnected {
+        color: #c0392b;
+        font-weight: bold;
+        font-size: 20px; /* Увеличен размер шрифта */
+      }
+      .info {
+        background-color: #ecf0f1;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        color: #7f8c8d;
+        font-size: 18px; /* Увеличен размер шрифта */
+      }
+      h2 {
+        color: #2980b9;
+        margin-top: 30px;
+        font-size: 28px; /* Увеличен размер шрифта */
+      }
+      .cert-list {
+        list-style: none;
+        padding: 0;
+        text-align: left;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .cert-list li {
+        background-color: #ffffff;
+        padding: 15px;
+        margin: 5px 0;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        font-size: 18px; /* Увеличен размер шрифта */
+      }
+      .cert-list li:hover {
+        background-color: #f9f9f9;
+        border-color: #2980b9;
+      }
+      .cert-detail {
+        color: #7f8c8d;
+        font-size: 16px; /* Увеличен размер шрифта для деталей */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>ПУЦ - Интерфейс</h1>
+      <div class="info">
+        <p>
+          <span class="status-label">Статус связи с сервером:</span>
+          <span id="server-status" class="disconnected">Disconnected</span>
+        </p>
+        <p>
+          <span class="status-label">Последнее обновление CRL:</span>
+          <span id="last-update">Ещё не обновлено</span>
+        </p>
+      </div>
+      <h2>Текущие отозванные сертификаты</h2>
+      <ul id="revoked-certs" class="cert-list"></ul>
+    </div>
+
+    <script>
+      function formatDate(isoString) {
+        if (!isoString) return "Не указана";
+        const date = new Date(isoString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // +1, так как месяцы с 0
+        const day = String(date.getDate()).padStart(2, "0");
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      }
+
+      async function updateInterface() {
+        const response = await fetch("/status");
+        const data = await response.json();
+
+        document.getElementById("server-status").textContent =
+          data.server_status === "Connected"
+            ? "Соединение установлено"
+            : "Соединение разорвано";
+        document.getElementById("server-status").className =
+          data.server_status === "Connected" ? "connected" : "disconnected";
+        document.getElementById("last-update").textContent = formatDate(
+          data.last_update
+        );
+
+        const revokedList = document.getElementById("revoked-certs");
+        revokedList.innerHTML = "";
+        if (data.revoked_certs.length > 0) {
+          data.revoked_certs.forEach((cert) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <strong>Серийный номер:</strong> ${String(
+                cert.serial_number
+              ).toUpperCase()}<br>
+              <span class="cert-detail">
+                Причина отзыва: ${cert.revocation_reason || "Не указана"}<br>
+                Дата отзыва: ${formatDate(cert.revocation_date)}
+              </span>
+            `;
+            revokedList.appendChild(li);
+          });
+        } else {
+          const li = document.createElement("li");
+          li.textContent = "Нет отозванных сертификатов";
+          revokedList.appendChild(li);
+        }
+      }
+      setInterval(updateInterface, 30_000);
+      updateInterface(); // Первоначальный вызов
+    </script>
+  </body>
+</html>

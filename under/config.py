@@ -23,6 +23,7 @@ class Config(BaseSettings):
     # Опциональные настройки
     proxy: Optional[str] = None
 
+    update_rate: int = 30
     # Конфигурация для загрузки из файла .env
     model_config = SettingsConfigDict(
         env_file=".env",
