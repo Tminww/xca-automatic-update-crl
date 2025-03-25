@@ -11,13 +11,22 @@ from cryptography.x509.oid import CRLEntryExtensionOID
 import logging
 import aiohttp
 import asyncio
+from contextlib import asynccontextmanager
 from datetime import datetime
 from shemas import RegistrationData
 from config import settings
 
 HOSTS_FILE = f"{settings.root_dir}/hosts.json"
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(update_host_statuses())
+    yield
+    logger.info("ЦУЦ завершил работу")
+
+app = FastAPI(lifespan=lifespan)
+
 
 # Настройка логирования
 logging.basicConfig(
@@ -220,9 +229,6 @@ async def root():
 async def get_hosts():
     return await read_hosts()
 
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(update_host_statuses())
 
 if __name__ == "__main__":
     import uvicorn

@@ -17,7 +17,7 @@
     "ip": "127.0.0.7",
     "port": 8001,
     "user": "user1",
-    "status": "Connected",
+    "status": "Disconnected",
     "last_confirmed": "2025-03-23T13:51:31.023095Z"
   }
 ]

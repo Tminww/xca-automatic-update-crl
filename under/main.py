@@ -14,8 +14,14 @@ from config import settings
 
 UPDATE_RATE_IN_SEC = 30 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(update_crl())
+    await register()
+    yield
+    logger.info("ПУЦ завершил работу")
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # Настройка логирования
 logging.basicConfig(
@@ -146,14 +152,7 @@ def get_revocation_reason(cert):
         logger.error(f"Error getting revocation reason: {str(e)}")
         return "Ошибка при получении причины"
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    asyncio.create_task(update_crl())
-    await register()
-    yield
-    logger.info("ПУЦ завершил работу")
 
-app = FastAPI(lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
