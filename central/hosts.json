@@ -4,20 +4,13 @@
     "port": 8001,
     "user": "user1",
     "status": "Disconnected",
-    "last_confirmed": "2025-03-23T13:36:22.925997Z"
+    "last_confirmed": "2025-03-25T12:55:47.548051Z"
   },
   {
-    "ip": "127.0.0.6",
+    "ip": "127.0.0.4",
     "port": 8001,
     "user": "user1",
     "status": "Disconnected",
-    "last_confirmed": "2025-03-23T13:38:23.014136Z"
-  },
-  {
-    "ip": "127.0.0.7",
-    "port": 8001,
-    "user": "user1",
-    "status": "Disconnected",
-    "last_confirmed": "2025-03-23T13:51:31.023095Z"
+    "last_confirmed": "2025-03-25T13:56:19.244863Z"
   }
 ]
