@@ -1,7 +1,7 @@
 import json
 import os
 import aiofiles
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from cryptography import x509
@@ -121,7 +121,7 @@ def get_revocation_reason(cert):
         return "Ошибка при получении причины"
 
 @app.post("/register")
-async def register(data: RegistrationData):
+async def register(request: Request, data: RegistrationData):
     try:
         puc_cert = x509.load_pem_x509_certificate(data.cert_pem.encode())
         reg_data = f"{data.ip},{data.user}".encode()
@@ -130,7 +130,7 @@ async def register(data: RegistrationData):
             raise HTTPException(status_code=400, detail="Invalid signature")
 
         new_host = {
-            "ip": data.ip,
+            "ip": request.client.host,
             "port": data.port,
             "user": data.user,
             "status": "Disconnected",
