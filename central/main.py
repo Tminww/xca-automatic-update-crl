@@ -141,13 +141,13 @@ async def register(request: Request, data: RegistrationData):
         
         # Проверка уникальности IP
         for host in registered_hosts:
-            if host["ip"] == data.ip:
-                logger.warning(f"Registration failed: IP {data.ip} already registered")
-                raise HTTPException(status_code=409, detail=f"IP address {data.ip} already registered")
+            if host["ip"] == request.client.host:
+                logger.warning(f"Registration failed: IP {request.client.host} already registered")
+                raise HTTPException(status_code=409, detail=f"IP address {request.client.host} already registered")
 
         registered_hosts.append(new_host)
         await write_hosts(registered_hosts)
-        logger.info(f"Зарегистрирован ПУЦ: IP: {data.ip}, User: {data.user}")
+        logger.info(f"Зарегистрирован ПУЦ: IP: {request.client.host}, User: {data.user}")
         return {"message": "Registration successful"}
     except HTTPException as e:
         raise e
